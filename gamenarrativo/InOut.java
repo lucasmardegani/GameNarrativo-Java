@@ -1,5 +1,6 @@
 package gamenarrativo;
 
+import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
 /** 

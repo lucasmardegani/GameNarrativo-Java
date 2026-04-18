@@ -28,4 +28,5 @@ public class Guerreiro {
     public int getVidas(){
         return vidas;
     }
+    
 }

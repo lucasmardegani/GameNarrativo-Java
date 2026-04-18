@@ -21,4 +21,8 @@ public class Bolsa {
     public int getMoedas(){
         return moedas;
     }
+
+    public ArrayList<Item> getItens() {
+    return itens;
+}
 }
