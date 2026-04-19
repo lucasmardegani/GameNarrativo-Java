@@ -2,6 +2,7 @@ package gamenarrativo;
 
 public class Item {
     private String nome;
+    private String tipo;
     private int valor;
     private boolean equipado;
     
@@ -11,6 +12,14 @@ public class Item {
     
     public String getNome(){
         return nome;
+    }
+
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
+    }
+
+    public String getTipo() {
+        return tipo;
     }
     
     public void setValor(int valor) {
@@ -30,9 +39,10 @@ public class Item {
     }
     
     public String imprimirDados() {
-    return "=== ITEM ===\n" +
-           "Nome: " + nome +
-           "\nValor: " + valor +
-           "\nEquipado: " + (equipado ? "Sim" : "Não");
+        return "=== ITEM ===\n" +
+               "Nome: " + nome +
+               "\nTipo: " + tipo +
+               "\nValor: " + valor +
+               "\nEquipado: " + (equipado ? "Sim" : "Não");
     }
 }

@@ -6,37 +6,29 @@ public class Main {
         Oraculo oraculo = new Oraculo();
         oraculo.setNome("Guardião");
 
-        //Fala de boas vindas + pedido de nome
         String nomeGuerreiro = InOut.leString(oraculo.mensagemAbertura());
 
         Guerreiro guerreiro = new Guerreiro();
         guerreiro.setNome(nomeGuerreiro);
 
-        // Pergunta se o guerreiro tem certeza
         boolean querJogar = oraculo.pedirConfirmacao();
         
         if (!querJogar) {
-            // Guerreiro desistiu
             InOut.MsgDeInformacao("Covarde!", oraculo.mensagemConfirmacaoNegativa(nomeGuerreiro));
             return;
         }
         
-        // Guerreiro aceitou
         InOut.MsgDeInformacao("A Jornada Começa", oraculo.mensagemConfirmacaoPositiva(nomeGuerreiro));
 
-        // Sorteia as vidas
         int vidasSorteadas = oraculo.sortearVidas();
         guerreiro.setVidas(vidasSorteadas);
 
-        // Mensagem após o nome
         InOut.MsgDeInformacao("Roleta Russa?", oraculo.mensagemAposNome(nomeGuerreiro));
 
-        // Mensagem mostrando as vidas sorteadas
         InOut.MsgDeInformacao("O Destino", oraculo.mensagemVidasSorteadas(vidasSorteadas, nomeGuerreiro));
 
         oraculo.setGuerreiro(guerreiro);
 
-        // Exibe o prólogo de introdução
         InOut.MsgDeInformacao("Introdução", oraculo.prologoIntroducao());
 
         // LEVEL 1
@@ -64,7 +56,6 @@ public class Main {
                     "Receba:\n- Espada Mística\n- Poção de Camuflagem");
 
         } else {
-            verificarVidaExtra(oraculo, guerreiro);
             return;
         }
 
@@ -72,7 +63,6 @@ public class Main {
         boolean passouLevel2 = oraculo.loadLevel02();
 
         if (!passouLevel2) {
-            verificarVidaExtra(oraculo, guerreiro);
             return;
         }
 
@@ -80,15 +70,22 @@ public class Main {
         InOut.MsgDeInformacao("Vitória", oraculo.prologoVencedor());
     }
 
-    // VIDA EXTRA
+    // VIDA EXTRA0
     public static void verificarVidaExtra(Oraculo oraculo, Guerreiro guerreiro) {
 
         if (guerreiro.getVidas() <= 0) {
 
+            if (guerreiro.isUsouVidaExtra()) {
+                InOut.MsgDeInformacao("Fim", oraculo.prologoPerdedor());
+                return;
+            }
+
             String pedido = oraculo.vidaExtra();
 
             if (oraculo.decidirVidaExtra(pedido)) {
-                guerreiro.setVidas(1);
+                guerreiro.setVidas(guerreiro.getVidas() + 1);
+                guerreiro.setUsouVidaExtra(true);
+
                 InOut.MsgDeInformacao("Misericórdia",
                         "Guardião: Sua súplica foi ouvida...\nVocê recebeu mais uma chance!");
             } else {

@@ -23,6 +23,6 @@ public class Bolsa {
     }
 
     public ArrayList<Item> getItens() {
-    return itens;
-}
+        return itens;
+    }
 }

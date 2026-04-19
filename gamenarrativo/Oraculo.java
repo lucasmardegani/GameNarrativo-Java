@@ -5,53 +5,53 @@ import javax.swing.JOptionPane;
 public class Oraculo {
     private String nome;
     private Guerreiro warrior;
-    
+
+    // número FIXO DO LEVEL 1
+    private int numeroSecreto = (int)(Math.random() * 100) + 1;
+
     public void setGuerreiro(Guerreiro warrior) {
         this.warrior = warrior;
     }
-    
-    //Nome
+
+    // NOME
     public void setNome(String nome) {
         this.nome = nome;
     }
 
-    //Boas Vindas com Pedido de Nome
+    // BOAS VINDAS COM O PEDIDO DO NOME
     public String mensagemAbertura() {
         return "Seja bem vindo ao caminho mais obscuro da terra, eu sou o " + nome + "!\nE você, quem é?\n[De um nome ao seu guerreiro:]";
     }
     
-    //Mensagem após nome
+    // MENSAGEM APÓS O NOME
     public String mensagemAposNome(String nomeGuerreiro) {
         return "Ahh sim " + nomeGuerreiro + ", já brincou de roleta russa? NUNCA???!! kkk.\nVamos ver se você tem bom gosto na sorte..";
     }
 
-    //Sortear Vidas
+    // SORTEAR VIDAS
     public int sortearVidas() {
         return (int)(Math.random() * 4) + 9;
     }
 
-    //Mensagem de aviso
+    // MENSAGEM DE AVISO
     public String mensagemAviso() {
         return "Antes de continuarmos...\n\nVoce tem certeza que quer participar dos jogos?\n"
                 + "Sei dos seus objetivos e conseguir a PEDRA DE RUBI após finalizar o jogo é um sonho para todos.\n\n"
                 + "Esta disposto a enfrentar os desafios?";
     }
 
-    //Pedir confirmação para participar dos jogos
+    // PEDIR CONFIRMAÇÃO
     public boolean pedirConfirmacao() {
-    int resposta = JOptionPane.showConfirmDialog(
-        null,
-        mensagemAviso(),
-        "⚔️ O Desafio ⚔️",
-        JOptionPane.YES_NO_OPTION,
-        JOptionPane.QUESTION_MESSAGE
-    );
-    
-    // YES = 0, NO = 1
+        int resposta = JOptionPane.showConfirmDialog(
+            null,
+            mensagemAviso(),
+            "⚔️ O Desafio ⚔️",
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.QUESTION_MESSAGE
+        );
         return (resposta == JOptionPane.YES_OPTION);
     }
 
-    //Mensagem de confirmação positiva
     public String mensagemConfirmacaoPositiva(String nomeGuerreiro) {
         return "Que assim seja, " + nomeGuerreiro + "!\n"
                 + "A PEDRA DE RUBI sera sua recompensa se vencer.\n"
@@ -59,7 +59,6 @@ public class Oraculo {
                 + "Boa sorte... voce vai precisar.";
     }
 
-    //Mensagem de confirmação negativa
     public String mensagemConfirmacaoNegativa(String nomeGuerreiro) {
         return "Ah, " + nomeGuerreiro + "... voce e um covarde?\n"
                 + "Entao porque veio ate mim?\n\n"
@@ -67,55 +66,69 @@ public class Oraculo {
                 + "Saia da minha presenca!";
     }
 
-    //Mensagem com vidas sorteadas
     public String mensagemVidasSorteadas(int vidas, String nomeGuerreiro) {
         return "Voce tem " + vidas + " vidas, foi o que o destino separou para voce.. " + nomeGuerreiro + "...";
     }
 
-    //Introdução
+    // INTRODUÇÃO
     public String prologoIntroducao() {
         return "Sua missão é sobreviver aos desafios que o aguardam e conquistar a PEDRA DE RUBI, um artefato de poder inimaginável.\n\n"
         + "Cada desafio testará sua coragem, inteligência e determinação.\n\n"
         + "Lembre-se, a jornada é tão importante quanto o destino. Boa sorte, guerreiro " + warrior.getNome() + "!";
     }
-    
-    //Level 01
+
+    // Level 01
     public boolean loadLevel01() {
 
-    //1 Sortear número entre 1 e 100
-    int numeroSorteado = (int)(Math.random() * 100) + 1;
+        // LOOP PRINCIPAL
+        while (true) {
 
-    //2 Enquanto tiver vidas
-    while (warrior.getVidas() > 0) {
-        int palpite = InOut.leInt("Digite seu palpite (1 a 100):");
+            // ENQUANTO TIVER VIDAS, CONTINUA
+            while (warrior.getVidas() > 0) {
 
-        //3 Verificar se acertou
-        if (palpite == numeroSorteado) {
-            InOut.MsgDeInformacao("Acertou!", "Parabéns, você acertou o número secreto!");
-            InOut.MsgDeInformacao("Parabéns!", "Você passou do Level 1!");
-            return true;
-        }
-        //4 Se errou, diminuir vida e dar dica
-        else {
-            int novasVidas = warrior.getVidas() - 1;
-            warrior.setVidas(novasVidas);
+                int palpite = InOut.leInt("Digite seu palpite (1 a 100):");
 
-            String dica;
-            if (palpite < numeroSorteado) {
-                dica = "MAIOR";
-            } else {
-                dica = "MENOR";
+                if (palpite == numeroSecreto) {
+                    InOut.MsgDeInformacao("Acertou!", "Parabéns, você acertou o número secreto!");
+                    InOut.MsgDeInformacao("Parabéns!", "Você passou do Level 1!");
+                    return true;
+                }
+                else {
+                    warrior.setVidas(warrior.getVidas() - 1);
+
+                    String dica = (palpite < numeroSecreto) ? "MAIOR" : "MENOR";
+
+                    InOut.MsgDeInformacao("Errou!", 
+                        "O número secreto é " + dica + " que " + palpite +
+                        ".\nVidas restantes: " + warrior.getVidas());
+                }
             }
-            InOut.MsgDeInformacao("Errou!", "O número secreto é " + dica + " que " + palpite + 
-                                  ".\nVidas restantes: " + warrior.getVidas());
+
+            // MORREU → VIDA EXTRA
+            if (!warrior.isUsouVidaExtra()) {
+
+                String pedido = vidaExtra();
+
+                if (decidirVidaExtra(pedido)) {
+                    warrior.setVidas(1);
+                    warrior.setUsouVidaExtra(true);
+
+                    InOut.MsgDeInformacao("Misericórdia",
+                        "Guardião: Sua súplica foi ouvida...\nVocê recebeu mais uma chance!");
+
+                    continue; // VOLTA PRO MESMO NÚMERO
+                }
+            }
+
+            // PERDEU DE VEZ
+            InOut.MsgDeInformacao("Game Over", 
+                prologoPerdedor() + "\nO número secreto era: " + numeroSecreto);
+
+            return false;
         }
     }
 
-    //5 Se acabar as vidas, perdeu
-    InOut.MsgDeInformacao("Game Over", prologoPerdedor() + "\nO número secreto era: " + numeroSorteado);
-        return false;
-}
-    //Level 02
+    // Level 02
     public boolean loadLevel02() {
 
         InOut.MsgDeInformacao("Level 2", "Você encontrou 3 Goblins!\n EI ei ei, essa não.. eles são viciados em charadas.. Prepare-se para enfrentá-los!");
@@ -130,18 +143,14 @@ public class Oraculo {
             boolean temPocao = false;
 
             for (Item item : warrior.getBolsa().getItens()) {
-                if (item.getNome().equals("Espada Mística") && !item.isEquipado()) {
-                    temEspada = true;
-                }
-                if (item.getNome().equals("Poção de Camuflagem") && !item.isEquipado()) {
-                    temPocao = true;
-                }
+                if (item.getNome().equals("Espada Mística") && !item.isEquipado()) temEspada = true;
+                if (item.getNome().equals("Poção de Camuflagem") && !item.isEquipado()) temPocao = true;
             }
 
             if (temEspada || temPocao) {
 
                 String escolha = InOut.leString(
-                    "Deseja usar um item?\n" +
+                    "Deseja usar um item?\n (Digite o número do item)\n" +
                     (temEspada ? "1 - Espada Mística\n" : "") +
                     (temPocao ? "2 - Poção de Camuflagem\n" : "") +
                     "3 - Não usar"
@@ -170,12 +179,9 @@ public class Oraculo {
                 }
             }
 
-            // 👉 se usou item, pula direto pro próximo goblin
-            if (usouItem) {
-                continue;
-            }
+            if (usouItem) continue;
 
-            // 👇 CADA GOBLIN TEM SUA CHARADA
+            // CHARADAS
             String pergunta = "";
             String respostaCorreta = "";
 
@@ -187,29 +193,51 @@ public class Oraculo {
                 pergunta = "O que é, o que é: quanto mais se tira, maior fica?";
                 respostaCorreta = "buraco";
             }
-            else if (i == 3) {
+            else {
                 pergunta = "O que é, o que é: anda com os pés na cabeça?";
                 respostaCorreta = "piolho";
             }
 
-            String resposta = InOut.leString(pergunta);
+            while (true) {
 
-            if (!resposta.equalsIgnoreCase(respostaCorreta)) {
+                String resposta = InOut.leString(pergunta);
+
+                if (resposta.equalsIgnoreCase(respostaCorreta)) {
+                    InOut.MsgDeInformacao("Acerto", "Você derrotou o goblin!");
+                    break;
+                }
+
                 warrior.setVidas(warrior.getVidas() - 1);
-                InOut.MsgDeInformacao("Erro", "Resposta errada! Vida perdida.");
+
+                InOut.MsgDeInformacao("Erro",
+                    "Resposta errada! Vida perdida.\nVidas restantes: " + warrior.getVidas());
 
                 if (warrior.getVidas() <= 0) {
+
+                    if (!warrior.isUsouVidaExtra()) {
+
+                        String pedido = vidaExtra();
+
+                        if (decidirVidaExtra(pedido)) {
+                            warrior.setVidas(1);
+                            warrior.setUsouVidaExtra(true);
+
+                            InOut.MsgDeInformacao("Misericórdia",
+                                "Guardião: Sua súplica foi ouvida...\nVocê recebeu mais uma chance!");
+
+                            continue;
+                        }
+                    }
+
                     return false;
                 }
-            } else {
-                InOut.MsgDeInformacao("Acerto", "Você derrotou o goblin!");
             }
         }
 
         return true;
-}
-    
-    // Perguntar Vida Extra
+    }
+
+    // VIDA EXTRA
     public String vidaExtra() {
         return InOut.leString(
             "Guardião: Suas forças se esgotaram...\n" +
@@ -217,32 +245,28 @@ public class Oraculo {
         );
     }
 
-    // Decidir Vida Extra
     public boolean decidirVidaExtra(String misericordia) {
         String[] palavras = misericordia.trim().split("\\s+");
 
         if (palavras.length > 5) {
             InOut.MsgDeInformacao("Guardião",
-                    "Sua súplica foi digna... concedo-lhe mais uma chance!");
+                "Sua súplica foi digna... concedo-lhe mais uma vida!");
             return true;
         } else {
             InOut.MsgDeInformacao("Guardião",
-                    "Palavras fracas... você não merece outra chance.");
+                "Palavras fracas... você não merece outra chance.");
             return false;
         }
-}
+    }
 
-    //Perdedor
     public String prologoPerdedor() {
         return "Guerreiro " + warrior.getNome() +
                 ", você falhou em sua jornada...\n" +
                 "O Oráculo " + nome + " lamenta sua derrota.";
     }
-    
-    //Vencedor
+
     public String prologoVencedor () {
         return "Parabéns " + warrior.getNome() +
                 "\nVocê venceu essa jornada e ganhou a Pedra de Rubi!\nO Oráculo " + nome + " reconhece sua coragem e determinação.";
     }
-    
 }
