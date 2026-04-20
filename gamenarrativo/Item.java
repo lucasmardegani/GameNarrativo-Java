@@ -5,7 +5,8 @@ public class Item {
     private String tipo;
     private int valor;
     private boolean equipado;
-    
+
+    // NOME
     public void setNome(String nome){
         this.nome = nome;
     }
@@ -14,14 +15,18 @@ public class Item {
         return nome;
     }
 
+    // TIPO
     public void setTipo(String tipo) {
-        this.tipo = tipo;
+        if (tipo != null) {
+            this.tipo = tipo.toLowerCase();
+        }
     }
 
     public String getTipo() {
         return tipo;
     }
-    
+
+    // VALOR
     public void setValor(int valor) {
         this.valor = valor;
     }
@@ -29,7 +34,8 @@ public class Item {
     public int getValor(){
         return valor;
     }
-    
+
+    // EQUIPADO
     public void setEquipado(boolean equipado) {
         this.equipado = equipado;
     }
@@ -37,7 +43,8 @@ public class Item {
     public boolean isEquipado() {
         return equipado;
     }
-    
+
+    // IMPRESSÃO
     public String imprimirDados() {
         return "=== ITEM ===\n" +
                "Nome: " + nome +

@@ -18,29 +18,25 @@ public class Oraculo {
         this.nome = nome;
     }
 
-    // BOAS VINDAS COM O PEDIDO DO NOME
+    // BOAS VINDAS
     public String mensagemAbertura() {
         return "Seja bem vindo ao caminho mais obscuro da terra, eu sou o " + nome + "!\nE você, quem é?\n[De um nome ao seu guerreiro:]";
     }
     
-    // MENSAGEM APÓS O NOME
     public String mensagemAposNome(String nomeGuerreiro) {
         return "Ahh sim " + nomeGuerreiro + ", já brincou de roleta russa? NUNCA???!! kkk.\nVamos ver se você tem bom gosto na sorte..";
     }
 
-    // SORTEAR VIDAS
     public int sortearVidas() {
         return (int)(Math.random() * 4) + 9;
     }
 
-    // MENSAGEM DE AVISO
     public String mensagemAviso() {
         return "Antes de continuarmos...\n\nVoce tem certeza que quer participar dos jogos?\n"
                 + "Sei dos seus objetivos e conseguir a PEDRA DE RUBI após finalizar o jogo é um sonho para todos.\n\n"
                 + "Esta disposto a enfrentar os desafios?";
     }
 
-    // PEDIR CONFIRMAÇÃO
     public boolean pedirConfirmacao() {
         int resposta = JOptionPane.showConfirmDialog(
             null,
@@ -70,20 +66,18 @@ public class Oraculo {
         return "Voce tem " + vidas + " vidas, foi o que o destino separou para voce.. " + nomeGuerreiro + "...";
     }
 
-    // INTRODUÇÃO
     public String prologoIntroducao() {
         return "Sua missão é sobreviver aos desafios que o aguardam e conquistar a PEDRA DE RUBI, um artefato de poder inimaginável.\n\n"
+        + "Só assim, durante anos e anos, seu vilarejo será protegido contra as forças do mal que ameaçam a região.\n\n"
         + "Cada desafio testará sua coragem, inteligência e determinação.\n\n"
         + "Lembre-se, a jornada é tão importante quanto o destino. Boa sorte, guerreiro " + warrior.getNome() + "!";
     }
 
-    // Level 01
+    // LEVEL 01
     public boolean loadLevel01() {
 
-        // LOOP PRINCIPAL
         while (true) {
 
-            // ENQUANTO TIVER VIDAS, CONTINUA
             while (warrior.getVidas() > 0) {
 
                 int palpite = InOut.leInt("Digite seu palpite (1 a 100):");
@@ -104,7 +98,6 @@ public class Oraculo {
                 }
             }
 
-            // MORREU → VIDA EXTRA
             if (!warrior.isUsouVidaExtra()) {
 
                 String pedido = vidaExtra();
@@ -116,11 +109,10 @@ public class Oraculo {
                     InOut.MsgDeInformacao("Misericórdia",
                         "Guardião: Sua súplica foi ouvida...\nVocê recebeu mais uma chance!");
 
-                    continue; // VOLTA PRO MESMO NÚMERO
+                    continue;
                 }
             }
 
-            // PERDEU DE VEZ
             InOut.MsgDeInformacao("Game Over", 
                 prologoPerdedor() + "\nO número secreto era: " + numeroSecreto);
 
@@ -128,10 +120,11 @@ public class Oraculo {
         }
     }
 
-    // Level 02
+    // LEVEL 02
     public boolean loadLevel02() {
 
-        InOut.MsgDeInformacao("Level 2", "Você encontrou 3 Goblins!\n EI ei ei, essa não.. eles são viciados em charadas.. Prepare-se para enfrentá-los!");
+        InOut.MsgDeInformacao("Level 2", 
+            "Você encontrou 3 Goblins!\n EI ei ei, essa não.. eles são viciados em charadas.. Prepare-se para enfrentá-los!");
 
         for (int i = 1; i <= 3; i++) {
 
@@ -181,7 +174,6 @@ public class Oraculo {
 
             if (usouItem) continue;
 
-            // CHARADAS
             String pergunta = "";
             String respostaCorreta = "";
 
@@ -237,6 +229,10 @@ public class Oraculo {
         return true;
     }
 
+    public String mensagemLevel03() {
+        return "O Protetor da Pedra de Rubi nos encontrou e esta furioso, temos que atacar, o Level tres se inicia..";
+    }
+
     // VIDA EXTRA
     public String vidaExtra() {
         return InOut.leString(
@@ -247,16 +243,7 @@ public class Oraculo {
 
     public boolean decidirVidaExtra(String misericordia) {
         String[] palavras = misericordia.trim().split("\\s+");
-
-        if (palavras.length > 5) {
-            InOut.MsgDeInformacao("Guardião",
-                "Sua súplica foi digna... concedo-lhe mais uma vida!");
-            return true;
-        } else {
-            InOut.MsgDeInformacao("Guardião",
-                "Palavras fracas... você não merece outra chance.");
-            return false;
-        }
+        return palavras.length > 5;
     }
 
     public String prologoPerdedor() {
@@ -265,8 +252,175 @@ public class Oraculo {
                 "O Oráculo " + nome + " lamenta sua derrota.";
     }
 
-    public String prologoVencedor () {
-        return "Parabéns " + warrior.getNome() +
-                "\nVocê venceu essa jornada e ganhou a Pedra de Rubi!\nO Oráculo " + nome + " reconhece sua coragem e determinação.";
+    // LEVEL 03
+    public boolean loadLevel03() {
+
+        int vidaBoss = 12;
+        boolean defesaAtiva = false;
+
+        while (true) {
+            
+            InOut.MsgDeInformacao("Status",
+                "Sua vida: " + warrior.getVidas() +
+                "\nVida do Protetor: " + vidaBoss);
+
+            String escolha = InOut.leString(
+                "Escolha sua ação:\n" +
+                "1 - Atacar\n" +
+                "2 - Defender\n" +
+                "3 - Usar item"
+            );
+
+            // ATACAR
+            if (escolha.equals("1")) {
+
+                int dano = (int)(Math.random() * 4) + 1;
+                vidaBoss -= dano;
+
+                InOut.MsgDeInformacao("Ataque", "Você causou " + dano + " de dano!");
+            }
+
+            // DEFENDER
+            else if (escolha.equals("2")) {
+
+                defesaAtiva = true;
+                InOut.MsgDeInformacao("Defesa", "Você se preparou para defender o próximo ataque!");
+            }
+
+            // ITENS
+            else if (escolha.equals("3")) {
+
+                boolean temEspada = false;
+                boolean temEscudo = false;
+                boolean temMaca = false;
+
+                for (Item item : warrior.getBolsa().getItens()) {
+                    if (item.getNome().equals("Espada Mística") && !item.isEquipado()) temEspada = true;
+                    if (item.getNome().equals("Poção de Escudo") && !item.isEquipado()) temEscudo = true;
+                    if (item.getNome().equals("Maça dos Deuses (Comestivel)") && !item.isEquipado()) temMaca = true;
+                }
+
+                String escolhaItem = InOut.leString(
+                    (temEspada ? "1 - Espada Mística\n" : "") +
+                    (temEscudo ? "2 - Poção de Escudo\n" : "") +
+                    (temMaca ? "3 - Maça dos Deuses (Comestivel)\n" : "") +
+                    "4 - Voltar"
+                );
+
+                // VOLTAR (não toma dano)
+                if (escolhaItem.equals("4")) {
+                    continue;
+                }
+
+                // ESPADA
+                else if (escolhaItem.equals("1") && temEspada) {
+
+                    for (Item item : warrior.getBolsa().getItens()) {
+                        if (item.getNome().equals("Espada Mística") && !item.isEquipado()) {
+
+                            item.setEquipado(true);
+
+                            int dano = 5;
+                            vidaBoss -= dano;
+
+                            InOut.MsgDeInformacao("Item", "Ataque especial! Dano: " + dano);
+                            break;
+                        }
+                    }
+                }
+
+                // ESCUDO
+                else if (escolhaItem.equals("2") && temEscudo) {
+
+                    for (Item item : warrior.getBolsa().getItens()) {
+                        if (item.getNome().equals("Poção de Escudo") && !item.isEquipado()) {
+
+                            item.setEquipado(true);
+                            defesaAtiva = true;
+
+                            InOut.MsgDeInformacao("Item", "Você ativou um escudo mágico!");
+                            break;
+                        }
+                    }
+                }
+
+                // MAÇÃ (NÃO TOMA DANO)
+                else if (escolhaItem.equals("3") && temMaca) {
+
+                    for (Item item : warrior.getBolsa().getItens()) {
+                        if (item.getNome().equals("Maça dos Deuses (Comestivel)") && !item.isEquipado()) {
+
+                            item.setEquipado(true);
+
+                            InOut.MsgDeInformacao("???",
+                                "\"De onde surgiu isso? Não estava aqui antes... e de repente está em minhas mãos. Será um presente dos deuses? O cosmos está ao meu lado e seguirei em frente, a vitória será minha!!\"");
+
+                            warrior.setVidas(warrior.getVidas() + 5);
+
+                            InOut.MsgDeInformacao("Bênção", "MAIS 5 DE VIDA");
+
+                            break;
+                        }
+                    }
+
+                    continue;
+                }
+            }
+
+            // MORTE DO BOSS
+            if (vidaBoss <= 0) {
+                InOut.MsgDeInformacao("Vitória", "Você derrotou o Protetor da Pedra!");
+                return true;
+            }
+
+            // ATAQUE DO BOSS
+            int danoBoss = (int)(Math.random() * 6); // 0 a 5
+
+            if (defesaAtiva) {
+
+                InOut.MsgDeInformacao("Defesa",
+                    "Você se protegeu de " + danoBoss + " de dano!");
+
+                danoBoss = 0;
+                defesaAtiva = false;
+            }
+            else {
+                InOut.MsgDeInformacao("Ataque do Protetor",
+                    "O Protetor causaria " + danoBoss + " de dano!");
+            }
+
+            warrior.setVidas(warrior.getVidas() - danoBoss);
+
+            // MORTE PLAYER
+            if (warrior.getVidas() <= 0) {
+
+                if (!warrior.isUsouVidaExtra()) {
+
+                    String pedido = vidaExtra();
+
+                    if (decidirVidaExtra(pedido)) {
+                        warrior.setVidas(1);
+                        warrior.setUsouVidaExtra(true);
+
+                        InOut.MsgDeInformacao("Misericórdia",
+                            "Guardião: Sua súplica foi ouvida...\nVocê recebeu mais uma chance!");
+
+                        continue;
+                    }
+                }
+
+                return false;
+            }
+        }
     }
+
+        // FINAL
+        public String prologoVencedor() {
+            return "PARABÉNS, " + warrior.getNome() + "!\n\n"
+                + "Você venceu essa jornada e conquistou a PEDRA DE RUBI!\n"
+                + "Seu vilarejo será protegido por milhares de anos.\n\n"
+                + "O Oráculo " + nome + " se curva diante de sua coragem\n"
+                + "e determinação inabalável!\n\n"
+                + "VOCÊ É UM VERDADEIRO GUERREIRO!";
+        }
 }
