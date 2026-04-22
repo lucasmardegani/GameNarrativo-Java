@@ -1,13 +1,28 @@
 package gamenarrativo;
 
+import java.util.ArrayList;
 import javax.swing.JOptionPane;
+import javax.swing.ImageIcon;
+import java.awt.Image;
 
 public class Oraculo {
     private String nome;
     private Guerreiro warrior;
+    private ArrayList<EstatisticaPartida> historicoPartidas;
+    private EstatisticaPartida partidaAtual;
+    private int contadorPalpitesLevel1;
+    private int numeroSecretoLevel1;
 
     // número FIXO DO LEVEL 1
-    private int numeroSecreto = (int)(Math.random() * 100) + 1;
+    public Oraculo() {
+    historicoPartidas = new ArrayList<>();
+    numeroSecretoLevel1 = (int)(Math.random() * 100) + 1;
+    }
+    // MÉTODO PARA INICIAR PARTIDA
+    public void iniciarPartida(String nomeGuerreiro, int vidasIniciais, int numeroPartida) {
+    partidaAtual = new EstatisticaPartida(numeroPartida, nomeGuerreiro, vidasIniciais);
+    contadorPalpitesLevel1 = 0;
+    }
 
     public void setGuerreiro(Guerreiro warrior) {
         this.warrior = warrior;
@@ -37,16 +52,21 @@ public class Oraculo {
                 + "Esta disposto a enfrentar os desafios?";
     }
 
-    public boolean pedirConfirmacao() {
-        int resposta = JOptionPane.showConfirmDialog(
-            null,
-            mensagemAviso(),
-            "⚔️ O Desafio ⚔️",
-            JOptionPane.YES_NO_OPTION,
-            JOptionPane.QUESTION_MESSAGE
-        );
-        return (resposta == JOptionPane.YES_OPTION);
-    }
+        public boolean pedirConfirmacao() {
+            ImageIcon imagemOriginal = new ImageIcon("imagens/Rubi.png");
+            Image imagemRedimensionada = imagemOriginal.getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH);
+            ImageIcon icone = new ImageIcon(imagemRedimensionada);
+            
+            int resposta = JOptionPane.showConfirmDialog(
+                null,
+                mensagemAviso(),
+                "⚔️ O Desafio ⚔️",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                icone
+            );
+            return (resposta == JOptionPane.YES_OPTION);
+        }
 
     public String mensagemConfirmacaoPositiva(String nomeGuerreiro) {
         return "Que assim seja, " + nomeGuerreiro + "!\n"
@@ -75,53 +95,61 @@ public class Oraculo {
 
     // LEVEL 01
     public boolean loadLevel01() {
-
+        contadorPalpitesLevel1 = 0;
+        
         while (true) {
-
             while (warrior.getVidas() > 0) {
-
                 int palpite = InOut.leInt("Digite seu palpite (1 a 100):");
-
-                if (palpite == numeroSecreto) {
+                contadorPalpitesLevel1++;
+                
+                if (palpite == numeroSecretoLevel1) {
                     InOut.MsgDeInformacao("Acertou!", "Parabéns, você acertou o número secreto!");
                     InOut.MsgDeInformacao("Parabéns!", "Você passou do Level 1!");
+                    
+                    // Salva estatísticas
+                    partidaAtual.setPalpitesLevel1(contadorPalpitesLevel1);
+                    partidaAtual.setNumeroSecretoLevel1(numeroSecretoLevel1);
+                    
                     return true;
-                }
-                else {
+                } else {
                     warrior.setVidas(warrior.getVidas() - 1);
-
-                    String dica = (palpite < numeroSecreto) ? "MAIOR" : "MENOR";
-
+                    
+                    String dica = (palpite < numeroSecretoLevel1) ? "MAIOR" : "MENOR";
+                    
                     InOut.MsgDeInformacao("Errou!", 
                         "O número secreto é " + dica + " que " + palpite +
                         ".\nVidas restantes: " + warrior.getVidas());
                 }
             }
-
+            
+            // Vida extra
             if (!warrior.isUsouVidaExtra()) {
-
                 String pedido = vidaExtra();
-
                 if (decidirVidaExtra(pedido)) {
                     warrior.setVidas(1);
                     warrior.setUsouVidaExtra(true);
-
                     InOut.MsgDeInformacao("Misericórdia",
                         "Guardião: Sua súplica foi ouvida...\nVocê recebeu mais uma chance!");
-
                     continue;
                 }
             }
-
+            
             InOut.MsgDeInformacao("Game Over", 
-                prologoPerdedor() + "\nO número secreto era: " + numeroSecreto);
-
+                prologoPerdedor() + "\nO número secreto era: " + numeroSecretoLevel1);
+            
+            // Salva estatísticas mesmo perdendo
+            partidaAtual.setPalpitesLevel1(contadorPalpitesLevel1);
+            partidaAtual.setNumeroSecretoLevel1(numeroSecretoLevel1);
+            
             return false;
         }
     }
 
     // LEVEL 02
     public boolean loadLevel02() {
+
+        int acertos = 0;
+        int erros = 0;
 
         InOut.MsgDeInformacao("Level 2", 
             "Você encontrou 3 Goblins!\n EI ei ei, essa não.. eles são viciados em charadas.. Prepare-se para enfrentá-los!");
@@ -155,6 +183,7 @@ public class Oraculo {
                             item.setEquipado(true);
                             InOut.MsgDeInformacao("Item", "Você intimidou o goblin!");
                             usouItem = true;
+                            acertos++;
                             break;
                         }
                     }
@@ -166,6 +195,7 @@ public class Oraculo {
                             item.setEquipado(true);
                             InOut.MsgDeInformacao("Item", "Você ficou invisível!");
                             usouItem = true;
+                            acertos++;
                             break;
                         }
                     }
@@ -196,10 +226,13 @@ public class Oraculo {
 
                 if (resposta.equalsIgnoreCase(respostaCorreta)) {
                     InOut.MsgDeInformacao("Acerto", "Você derrotou o goblin!");
+                    acertos++;
                     break;
                 }
 
                 warrior.setVidas(warrior.getVidas() - 1);
+
+                erros++;
 
                 InOut.MsgDeInformacao("Erro",
                     "Resposta errada! Vida perdida.\nVidas restantes: " + warrior.getVidas());
@@ -220,6 +253,9 @@ public class Oraculo {
                             continue;
                         }
                     }
+
+                    partidaAtual.setAcertosLevel2(acertos);
+                    partidaAtual.setErrosLevel2(erros);
 
                     return false;
                 }
@@ -253,7 +289,7 @@ public class Oraculo {
     }
 
     // LEVEL 03
-    public boolean loadLevel03() {
+    public String loadLevel03() {
 
         int vidaBoss = 12;
         boolean defesaAtiva = false;
@@ -307,62 +343,41 @@ public class Oraculo {
                     "4 - Voltar"
                 );
 
-                // VOLTAR (não toma dano)
                 if (escolhaItem.equals("4")) {
                     continue;
                 }
-
-                // ESPADA
                 else if (escolhaItem.equals("1") && temEspada) {
-
                     for (Item item : warrior.getBolsa().getItens()) {
                         if (item.getNome().equals("Espada Mística") && !item.isEquipado()) {
-
                             item.setEquipado(true);
-
                             int dano = 5;
                             vidaBoss -= dano;
-
                             InOut.MsgDeInformacao("Item", "Ataque especial! Dano: " + dano);
                             break;
                         }
                     }
                 }
-
-                // ESCUDO
                 else if (escolhaItem.equals("2") && temEscudo) {
-
                     for (Item item : warrior.getBolsa().getItens()) {
                         if (item.getNome().equals("Poção de Escudo") && !item.isEquipado()) {
-
                             item.setEquipado(true);
                             defesaAtiva = true;
-
                             InOut.MsgDeInformacao("Item", "Você ativou um escudo mágico!");
                             break;
                         }
                     }
                 }
-
-                // MAÇÃ (NÃO TOMA DANO)
                 else if (escolhaItem.equals("3") && temMaca) {
-
                     for (Item item : warrior.getBolsa().getItens()) {
                         if (item.getNome().equals("Maça dos Deuses (Comestivel)") && !item.isEquipado()) {
-
                             item.setEquipado(true);
-
                             InOut.MsgDeInformacao("???",
                                 "\"De onde surgiu isso? Não estava aqui antes... e de repente está em minhas mãos. Será um presente dos deuses? O cosmos está ao meu lado e seguirei em frente, a vitória será minha!!\"");
-
                             warrior.setVidas(warrior.getVidas() + 5);
-
                             InOut.MsgDeInformacao("Bênção", "MAIS 5 DE VIDA");
-
                             break;
                         }
                     }
-
                     continue;
                 }
             }
@@ -370,17 +385,15 @@ public class Oraculo {
             // MORTE DO BOSS
             if (vidaBoss <= 0) {
                 InOut.MsgDeInformacao("Vitória", "Você derrotou o Protetor da Pedra!");
-                return true;
+                return "Venceu o Boss";
             }
 
             // ATAQUE DO BOSS
-            int danoBoss = (int)(Math.random() * 6); // 0 a 5
+            int danoBoss = (int)(Math.random() * 6);
 
             if (defesaAtiva) {
-
                 InOut.MsgDeInformacao("Defesa",
                     "Você se protegeu de " + danoBoss + " de dano!");
-
                 danoBoss = 0;
                 defesaAtiva = false;
             }
@@ -395,21 +408,16 @@ public class Oraculo {
             if (warrior.getVidas() <= 0) {
 
                 if (!warrior.isUsouVidaExtra()) {
-
                     String pedido = vidaExtra();
-
                     if (decidirVidaExtra(pedido)) {
                         warrior.setVidas(1);
                         warrior.setUsouVidaExtra(true);
-
                         InOut.MsgDeInformacao("Misericórdia",
                             "Guardião: Sua súplica foi ouvida...\nVocê recebeu mais uma chance!");
-
                         continue;
                     }
                 }
-
-                return false;
+                return "Morreu para o Boss";
             }
         }
     }
@@ -423,4 +431,38 @@ public class Oraculo {
                 + "e determinação inabalável!\n\n"
                 + "VOCÊ É UM VERDADEIRO GUERREIRO!";
         }
+
+        // RELATÓRIO FINAL
+        public void finalizarPartida(boolean venceu, int acertosLevel2, int errosLevel2, String resultadoLevel3) {
+        partidaAtual.setVidasRestantes(warrior.getVidas());
+        partidaAtual.setVenceu(venceu);
+        partidaAtual.setAcertosLevel2(acertosLevel2);
+        partidaAtual.setErrosLevel2(errosLevel2);
+        partidaAtual.setResultadoLevel3(resultadoLevel3);
+        historicoPartidas.add(partidaAtual);
+        }
+
+        public String relatorioFimGame() {
+            String relatorio = "═══════════════════════════════════════\n";
+            relatorio += "        RELATÓRIO DE JORNADAS\n";
+            relatorio += "═══════════════════════════════════════\n\n";
+            
+            for (EstatisticaPartida partida : historicoPartidas) {
+                relatorio += partida.gerarRelatorio() + "\n";
+            }
+            
+            relatorio += "═══════════════════════════════════════\n";
+            relatorio += "Total de partidas: " + historicoPartidas.size() + "\n";
+            
+            int vitorias = 0;
+            for (EstatisticaPartida partida : historicoPartidas) {
+                if (partida.isVenceu()) vitorias++;
+            }
+            
+            relatorio += "Vitórias: " + vitorias + "\n";
+            relatorio += "Derrotas: " + (historicoPartidas.size() - vitorias) + "\n";
+            relatorio += "═══════════════════════════════════════\n";
+            
+            return relatorio;
+            }
 }

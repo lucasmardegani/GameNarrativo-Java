@@ -2,6 +2,12 @@ package gamenarrativo;
 
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
+import java.awt.Image;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.geom.RoundRectangle2D;
+import java.awt.image.BufferedImage;
 
 /** 
  * A classe <i>leDadosWin</i> permite a leitura de dados de tipos nativos e de   
@@ -16,32 +22,64 @@ import javax.swing.JOptionPane;
  * </ul>  
  */
 public class InOut {
+	
+	// ===== IMAGENS PARA AS CAIXAS =====
+	private static ImageIcon iconeMensagem;   // Espada (MsgDeInformacao)
+	private static ImageIcon iconeEntrada;    // Pergaminho (leString/leInt)
+	
+	// Método para arredondar a imagem
+	private static ImageIcon arredondarImagem(ImageIcon imagem, int largura, int altura, int raioArredondamento) {
+		// Cria uma imagem em branco do tamanho desejado
+		BufferedImage imagemArredondada = new BufferedImage(largura, altura, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g2 = imagemArredondada.createGraphics();
+		
+		// Ativa anti-aliasing para bordas suaves
+		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		
+		// Desenha um retângulo arredondado como máscara
+		RoundRectangle2D formaArredondada = new RoundRectangle2D.Float(0, 0, largura, altura, raioArredondamento, raioArredondamento);
+		g2.setClip(formaArredondada);
+		
+		// Desenha a imagem dentro da máscara
+		g2.drawImage(imagem.getImage(), 0, 0, largura, altura, null);
+		g2.dispose();
+		
+		return new ImageIcon(imagemArredondada);
+	}
+	
+	static {
+		try {
+			// ===== CARREGA A ESPADA (para mensagens) =====
+			ImageIcon imagemEspada = new ImageIcon("imagens/Espada.png");
+			Image espadaRedimensionada = imagemEspada.getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH);
+			ImageIcon iconeEspadaRedimensionado = new ImageIcon(espadaRedimensionada);
+			iconeMensagem = arredondarImagem(iconeEspadaRedimensionado, 64, 64, 15);
+			
+			// ===== CARREGA O PERGAMINHO (para entradas) =====
+			ImageIcon imagemPergaminho = new ImageIcon("imagens/pergaminho.png");
+			Image pergaminhoRedimensionado = imagemPergaminho.getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH);
+			ImageIcon iconePergaminhoRedimensionado = new ImageIcon(pergaminhoRedimensionado);
+			iconeEntrada = arredondarImagem(iconePergaminhoRedimensionado, 64, 64, 15);
+			
+		} catch (Exception e) {
+			System.out.println("Erro ao carregar imagens: " + e.getMessage());
+			iconeMensagem = null;
+			iconeEntrada = null;
+		}
+	}
+	// =============================================
+	
 	/**
-	 * Este metodo eh para entrada de uma String. Tem como parametro de entrada
-	 * uma String que indicara para o usuario qual o dado que sera lido naquele
-	 * momento por aquela caixa de texto e retorna a String lida
-	 * 
-	 * @param frase que sera usada para o usuario saber qual dado sera lido
-	 * @return String que foi lida
+	 * Este metodo eh para entrada de uma String.
 	 */
 	public static String leString (String frase){
 		String Entrada;
-		
-		Entrada = JOptionPane.showInputDialog (null, frase, "Entrada de dados", JOptionPane.QUESTION_MESSAGE);
+		Entrada = (String) JOptionPane.showInputDialog(null, frase, "Entrada de dados", JOptionPane.QUESTION_MESSAGE, iconeEntrada, null, null);
 		return Entrada;
 	}
 	
 	/**
-	 * Este metodo eh para entrada de um objeto do tipo byte. Tem como parametro 
-	 * de entrada uma String que indicara para o usuario qual o dado que sera 
-	 * lido naquele momento por aquela caixa de texto. 
-	 * Le entao uma String e a converte para um objeto do tipo byte. 
-	 * Se na conversao ocorrer algum erro, o processo sera feito novamente, 
-	 * ou seja, sera lida outra String e convertida para byte. O processo soh 
-	 * para quando a conversao for bem sucedida.  
-	 * 
-	 * @param frase que sera usada para o usuario saber qual dado sera lido
-	 * @return um objeto do tipo byte
+	 * Este metodo eh para entrada de um objeto do tipo byte.
 	 */
 	public static byte leByte (String frase){
 		byte num = 0;
@@ -50,14 +88,14 @@ public class InOut {
 		
 		do{
 			try{
-				Entrada = JOptionPane.showInputDialog (null, frase, "Entrada de dados", JOptionPane.QUESTION_MESSAGE);
+				Entrada = (String) JOptionPane.showInputDialog(null, frase, "Entrada de dados", JOptionPane.QUESTION_MESSAGE, iconeEntrada, null, null);
 				num = Byte.parseByte(Entrada);
 				ERRO = false;
 			}
 			catch(NumberFormatException e){
 				JOptionPane.showMessageDialog(null, "VALOR DEVE SER UM NUMERO DO TIPO " +
 								    "BYTE", "   >>>      ERRO     <<<", 
-								    JOptionPane.ERROR_MESSAGE);
+								    JOptionPane.ERROR_MESSAGE, iconeMensagem);
 				ERRO = true;
 			}
 		}while (ERRO);	
@@ -65,14 +103,7 @@ public class InOut {
 	}
 	
 	/**
-	 * Este metodo eh para entrada de um objeto do tipo short. Tem como parametro 
-	 * de entrada uma String que indicara para o usuario qual o dado que sera
-	 * lido naquele momento por aquela caixa de texto. 
-	 * Le entao uma String e a converte para um objeto do tipo short. 
-	 * O processo so para quando a conversao for bem sucedida.  
-	 * 
-	 * @param frase que sera usada para o usuario saber qual dado sera lido
-	 * @return um objeto do tipo short
+	 * Este metodo eh para entrada de um objeto do tipo short.
 	 */
 	public static short leShort (String frase){
 		short num=0;
@@ -81,14 +112,14 @@ public class InOut {
 		
 		do{
 			try{
-				Entrada = JOptionPane.showInputDialog (null, frase, "Entrada de dados", JOptionPane.QUESTION_MESSAGE);
+				Entrada = (String) JOptionPane.showInputDialog(null, frase, "Entrada de dados", JOptionPane.QUESTION_MESSAGE, iconeEntrada, null, null);
 				num = Short.parseShort(Entrada);
 				ERRO = false;
 			}
 			catch(NumberFormatException e){
 				JOptionPane.showMessageDialog(null, "VALOR DEVE SER UM NUMERO DO TIPO " +
 								    "SHORT", "   >>>      ERRO     <<<", 
-								    JOptionPane.ERROR_MESSAGE);
+								    JOptionPane.ERROR_MESSAGE, iconeMensagem);
 				ERRO = true;
 			}
 		}while (ERRO);	
@@ -96,14 +127,7 @@ public class InOut {
 	}
 	
 	/**
-	 * Este metodo eh para entrada de um objeto do tipo int. Tem como parametro 
-	 * de entrada uma String que indicara para o usuario qual o dado que sera 
-	 * lido naquele momento por aquela caixa de texto. 
-	 * Le entao uma String e a converte para um objeto do tipo int. 
-	 * O processo so para quando a conversao for bem sucedida.  
-	 * 
-	 * @param frase que sera usada para o usuario saber qual dado sera lido
-	 * @return um objeto do tipo int
+	 * Este metodo eh para entrada de um objeto do tipo int.
 	 */
 	public static int leInt (String frase){
 		int num = 0;
@@ -112,14 +136,14 @@ public class InOut {
 		
 		do{
 			try{
-				Entrada = JOptionPane.showInputDialog (null, frase, "Entrada de dados", JOptionPane.QUESTION_MESSAGE);
+				Entrada = (String) JOptionPane.showInputDialog(null, frase, "Entrada de dados", JOptionPane.QUESTION_MESSAGE, iconeEntrada, null, null);
 				num = Integer.parseInt(Entrada);
 				ERRO = false;
 			}
 			catch(Exception e){
 				JOptionPane.showMessageDialog(null, "VALOR DEVE SER UM NUMERO DO TIPO " +
 								    "INTEIRO ", "   >>>      ERRO     <<<", 
-								    JOptionPane.ERROR_MESSAGE);
+								    JOptionPane.ERROR_MESSAGE, iconeMensagem);
 				ERRO = true;
 			}
 		}while (ERRO);		
@@ -127,14 +151,7 @@ public class InOut {
 	}
 	
 	/**
-	 * Este metodo eh para entrada de um objeto do tipo long. Tem como parametro 
-	 * de entrada uma String que indicara para o usuario qual o dado que sera
-	 * lido naquele momento por aquela caixa de texto. 
-	 * Le entao uma String e a converte para um objeto do tipo long. 
-	 * O processo so para quando a conversao for bem sucedida.  
-	 * 
-	 * @param frase que sera usada para o usuario saber qual dado sera lido
-	 * @return um objeto do tipo long
+	 * Este metodo eh para entrada de um objeto do tipo long.
 	 */
 	public static long leLong (String frase){
 		long num = 0;
@@ -143,14 +160,14 @@ public class InOut {
 		
 		do{
 			try{
-				Entrada = JOptionPane.showInputDialog (null, frase, "Entrada de dados", JOptionPane.QUESTION_MESSAGE);
+				Entrada = (String) JOptionPane.showInputDialog(null, frase, "Entrada de dados", JOptionPane.QUESTION_MESSAGE, iconeEntrada, null, null);
 				num = Long.parseLong(Entrada);
 				ERRO = false;
 			}
 			catch(Exception e){
 				JOptionPane.showMessageDialog(null, "VALOR DEVE SER UM NUMERO DO TIPO " +
 								    "LONG ", "   >>>      ERRO     <<<", 
-								    JOptionPane.ERROR_MESSAGE);
+								    JOptionPane.ERROR_MESSAGE, iconeMensagem);
 				ERRO = true;
 			}
 		}while (ERRO);		
@@ -158,14 +175,7 @@ public class InOut {
 	}
 
 	/**
-	 * Este metodo eh para entrada de um objeto do tipo float. Tem como parametro 
-	 * de entrada uma String que indicara para o usuario qual o dado que sera 
-	 * lido naquele momento por aquela caixa de texto. 
-	 * Le entao uma String e a converte para um objeto do tipo float. 
-	 * O processo so para quando a conversao for bem sucedida.  
-	 * 
-	 * @param frase que sera usada para o usuario saber qual dado sera lido
-	 * @return um objeto do tipo float
+	 * Este metodo eh para entrada de um objeto do tipo float.
 	 */
 	public static float leFloat (String frase){
 		float num = 0;
@@ -174,14 +184,14 @@ public class InOut {
 		
 		do{
 			try{
-				Entrada = JOptionPane.showInputDialog (null, frase, "Entrada de dados", JOptionPane.QUESTION_MESSAGE);
+				Entrada = (String) JOptionPane.showInputDialog(null, frase, "Entrada de dados", JOptionPane.QUESTION_MESSAGE, iconeEntrada, null, null);
 				num = Float.parseFloat(Entrada);
 				ERRO = false;
 			}
 			catch(Exception e){
 				JOptionPane.showMessageDialog(null, "VALOR DEVE SER UM NUMERO DO TIPO " +
  								    "FLOAT", "   >>>      ERRO     <<<", 
-								    JOptionPane.ERROR_MESSAGE);
+								    JOptionPane.ERROR_MESSAGE, iconeMensagem);
 				ERRO = true;
 			}
 		}while (ERRO);	
@@ -189,14 +199,7 @@ public class InOut {
 	}
 
 	/**
-	 * Este metodo eh para entrada de um objeto do tipo double. Tem como paraametro 
-	 * de entrada uma String que indicara para o usuario qual o dado que sera
-	 * lido naquele momento por aquela caixa de texto. 
-	 * Le entao uma String e a converte para um objeto do tipo double. 
-	 * O processo so para quando a conversao for bem sucedida.  	 
-	 * 
-	 * @param frase que sera usada para o usuario saber qual dado sera lido
-	 * @return um objeto do tipo double
+	 * Este metodo eh para entrada de um objeto do tipo double.
 	 */
 	public static double leDouble (String frase){
 		double num = 0;
@@ -205,14 +208,14 @@ public class InOut {
 		
 		do{
 			try{
-				Entrada = JOptionPane.showInputDialog (null, frase, "Entrada de dados", JOptionPane.QUESTION_MESSAGE);
+				Entrada = (String) JOptionPane.showInputDialog(null, frase, "Entrada de dados", JOptionPane.QUESTION_MESSAGE, iconeEntrada, null, null);
 				num = Double.parseDouble(Entrada);
 				ERRO = false;
 			}
 			catch(Exception e){
 				JOptionPane.showMessageDialog(null, "VALOR DEVE SER UM NUMERO DO TIPO " +
 								    "DOUBLE", "   >>>      ERRO     <<<", 
-								    JOptionPane.ERROR_MESSAGE);
+								    JOptionPane.ERROR_MESSAGE, iconeMensagem);
 				ERRO = true;
 			}
 		}while (ERRO);	
@@ -220,20 +223,14 @@ public class InOut {
 	}
 
 	/**
-	 * Este metodo eh para entrada de um objeto do tipo char. Tem como parametro 
-	 * de entrada uma String que indicara para o usuario qual o dado que sera
-	 * lido naquele momento por aquela caixa de texto. 
-	 * Le entao uma String e retorna apenas o primeiro caracter da String.  
-	 * 
-	 * @param frase que sera usada para o usuario saber qual dado sera lido
-	 * @return um objeto do tipo char
+	 * Este metodo eh para entrada de um objeto do tipo char.
 	 */
 	public static char leChar (String frase){
 		String Entrada;
 		boolean ERRO;
 		
 		do{
-			Entrada = JOptionPane.showInputDialog (null, frase, "Entrada de dados", JOptionPane.QUESTION_MESSAGE);
+			Entrada = (String) JOptionPane.showInputDialog(null, frase, "Entrada de dados", JOptionPane.QUESTION_MESSAGE, iconeEntrada, null, null);
 			if (Entrada.length()!= 0)
 				ERRO = false;
 			else
@@ -242,56 +239,28 @@ public class InOut {
 		return Entrada.charAt(0);
 	}
 	
-	/**
-	 * Este metodo foi criado para mandar uma mensagem com o icone de
-	 * ERRO
-	 *  
-	 * @param cabecalho que aparecera no topo da mensagem
-	 * @param frase     que aparecera dentro da caixa de mensagem
-	 */
+	// ===== MÉTODOS DE MENSAGEM (usam a Espada) =====
+	
 	public static void MsgDeErro(String cabecalho, String frase){
-		JOptionPane.showMessageDialog(null, frase, cabecalho,  JOptionPane.ERROR_MESSAGE);
+		JOptionPane.showMessageDialog(null, frase, cabecalho,  JOptionPane.ERROR_MESSAGE, iconeMensagem);
 	}
 	
-	/**
-	 * Este metodo foi criado para mandar uma mensagem com o icone de
-	 * INFORMACAO
-	 *  
-	 * @param cabecalho que aparecer no topo da mensagem
-	 * @param frase     que aparecera dentro da caixa de mensagem
-	 */
 	public static void MsgDeInformacao(String cabecalho, String frase){
-		JOptionPane.showMessageDialog(null, frase, cabecalho, JOptionPane.INFORMATION_MESSAGE);
+		JOptionPane.showMessageDialog(null, frase, cabecalho, JOptionPane.INFORMATION_MESSAGE, iconeMensagem);
 	}
 
-	/**
-	 * Este metodo foi criado para mandar uma mensagem sem icone 
-	 *  
-	 * @param cabecalho que aparecera no topo da mensagem
-	 * @param frase     que aparecera dentro da caixa de mensagem
-	 */
 	public static void MsgSemIcone(String cabecalho, String frase){
-		JOptionPane.showMessageDialog(null, frase, cabecalho, JOptionPane.PLAIN_MESSAGE);
+		JOptionPane.showMessageDialog(null, frase, cabecalho, JOptionPane.PLAIN_MESSAGE, iconeMensagem);
+	}
+	
+	public static void MsgDeAviso (String cabecalho, String frase){
+		JOptionPane.showMessageDialog(null, frase, cabecalho, JOptionPane.WARNING_MESSAGE, iconeMensagem);
 	}
 	
 	/**
-	 * Este metodo foi criado para mandar uma mensagem com o icone de
-	 * AVISO
-	 *  
-	 * @param cabecalho que aparecera no topo da mensagem
-	 * @param frase     que aparecera dentro da caixa de mensagem
+	 * Exemplos...
 	 */
-	public static void MsgDeAviso (String cabecalho, String frase){
-		JOptionPane.showMessageDialog(null, frase, cabecalho, JOptionPane.WARNING_MESSAGE);
-	}
-	
-	
-/**
- * Exemplos...
- * @param args : Entrada de dados do cmd
- */
-        //public static void main(String [] args){
-        void main() {
+	void main() {
 		String nome = leString("Digite o seu nome: ");
 		int idade = leInt("Digite a sua idade: ");
 		
